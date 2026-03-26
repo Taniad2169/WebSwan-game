@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WebSwan Games 🦢</title>
+<title>WebSwan Games 🦢 | Translate & Play</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Space+Mono:wght@400;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -84,6 +84,31 @@
     pointer-events: none;
   }
   @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(6px)} }
+
+  /* GLOBAL TRANSLATE BUTTON */
+  .global-translate-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10000;
+    background: linear-gradient(135deg, #071e2e, #0e6296);
+    border: 2px solid var(--gold);
+    border-radius: 50px;
+    padding: 8px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: white;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: 0.2s;
+  }
+  .global-translate-btn:active { transform: scale(0.96); }
+  .translate-icon { font-size: 1.2rem; }
+  .lang-badge { background: var(--gold); color: var(--dark); border-radius: 30px; padding: 2px 8px; font-size: 0.7rem; font-weight: 800; }
 
   /* MEMORY GAME */
   .memory-header { background: linear-gradient(90deg, #0e738a 0%, #62e3df 55%, #94dbeb 100%); padding: 8px 16px 6px; text-align: center; border-bottom: 2px solid var(--teal); flex-shrink: 0; }
@@ -180,6 +205,13 @@
 </head>
 <body>
 <div id="nav-dots"><div class="dot active" onclick="scrollToGame(0)"></div><div class="dot" onclick="scrollToGame(1)"></div></div>
+<!-- GLOBAL TRANSLATE BUTTON (LINK TO DELUXE TRANSLATE) -->
+<div class="global-translate-btn" id="globalTranslateBtn">
+  <span class="translate-icon">🌐</span>
+  <span>Translate Game</span>
+  <span class="lang-badge" id="langBadge">EN</span>
+</div>
+
 <div id="game-wrapper">
   <!-- MEMORY GAME -->
   <div class="game-screen" id="memory-screen">
@@ -217,7 +249,7 @@
 </div>
 
 <script>
-// ==================== MEMORY GAME ====================
+// ==================== MEMORY GAME (identical to original with best score fix) ====================
 const memImages = [
   {emoji:"🎷", label:"Sax"},{emoji:"🎸", label:"Guitar"},{emoji:"🎺", label:"Trumpet"},{emoji:"🥁", label:"Drums"},{emoji:"🎹", label:"Piano"},{emoji:"🎻", label:"Violin"},
   {emoji:"🖌️", label:"Brush"},{emoji:"🎨", label:"Palette"},{emoji:"🖼️", label:"Canvas"},{emoji:"✏️", label:"Sketch"},{emoji:"🎭", label:"Theater"},{emoji:"📷", label:"Camera"}
@@ -280,385 +312,73 @@ function setDifficulty(diff, btn) { document.querySelectorAll('.diff-btn').forEa
 function loadBestScores() { const best = localStorage.getItem('mem_best'); if (best) document.getElementById('mem-best').textContent = best; }
 function spawnConfetti() { for (let i = 0; i < 40; i++) { setTimeout(() => { const c = document.createElement('div'); c.style.cssText = `position:absolute;width:8px;height:8px;left:${15+Math.random()*70}%;top:30%;background:${['#ffd700','#62e3df','#ff6b6b'][Math.floor(Math.random()*3)]};animation:confettiFall 1.6s forwards;pointer-events:none;z-index:999;`; document.body.appendChild(c); setTimeout(() => c.remove(), 1700); }, i * 40); } }
 
-// ==================== WHEEL OF FORTUNE - FULLY FIXED ====================
+// ==================== WHEEL OF FORTUNE ====================
 const wofPuzzles = [
-  { category:"Art 🎨", answer:"MASTERPIECE" },
-  { category:"Medicine 🩺", answer:"FAMILY PHYSICIAN" }, 
-  { category:"Medicine 🩺", answer:"BLOOD PRESSURE" }, 
-  { category:"Music 🎵", answer:"SAXOPHONE" }, 
-  { category:"Music 🎵", answer:"JAZZ BAND" }, 
-  { category:"Travel ✈️", answer:"PARIS FRANCE" }, 
-  { category:"Travel ✈️", answer:"TROPICAL BEACH" }, 
-  { category:"Proverbs 📜", answer:"LITTLE BY LITTLE" }, 
-  { category:"Inspiration ✨", answer:"BELIEVE IN YOURSELF" }, 
-  { category:"Inspiration ✨", answer:"DREAM BIG" }
+  { category:"Art 🎨", answer:"MASTERPIECE" }, { category:"Medicine 🩺", answer:"FAMILY PHYSICIAN" }, { category:"Medicine 🩺", answer:"BLOOD PRESSURE" }, { category:"Music 🎵", answer:"SAXOPHONE" }, { category:"Music 🎵", answer:"JAZZ BAND" }, { category:"Travel ✈️", answer:"PARIS FRANCE" }, { category:"Travel ✈️", answer:"TROPICAL BEACH" }, { category:"Proverbs 📜", answer:"LITTLE BY LITTLE" }, { category:"Inspiration ✨", answer:"BELIEVE IN YOURSELF" }, { category:"Inspiration ✨", answer:"DREAM BIG" }
 ];
 const WHEEL_WEDGES = [
-  {label:'$500', value:500, color:'#C0392B'}, {label:'$700', value:700, color:'#16A085'}, 
-  {label:'$300', value:300, color:'#8E44AD'}, {label:'$900', value:900, color:'#E67E22'},
-  {label:'LOSE', value:0, color:'#2C3E50', special:'lose'}, {label:'$600', value:600, color:'#2980B9'}, 
-  {label:'$400', value:400, color:'#D35400'}, {label:'$800', value:800, color:'#1ABC9C'},
-  {label:'FREE', value:500, color:'#F39C12', special:'free'}, {label:'$1000',value:1000, color:'#922B21'}, 
-  {label:'$350', value:350, color:'#27AE60'}, {label:'$750', value:750, color:'#6C3483'}
+  {label:'$500', value:500, color:'#C0392B'}, {label:'$700', value:700, color:'#16A085'}, {label:'$300', value:300, color:'#8E44AD'}, {label:'$900', value:900, color:'#E67E22'},
+  {label:'LOSE', value:0, color:'#2C3E50', special:'lose'}, {label:'$600', value:600, color:'#2980B9'}, {label:'$400', value:400, color:'#D35400'}, {label:'$800', value:800, color:'#1ABC9C'},
+  {label:'FREE', value:500, color:'#F39C12', special:'free'}, {label:'$1000',value:1000, color:'#922B21'}, {label:'$350', value:350, color:'#27AE60'}, {label:'$750', value:750, color:'#6C3483'}
 ];
 const NUM_WEDGES = WHEEL_WEDGES.length, WEDGE_ANGLE = (Math.PI * 2) / NUM_WEDGES;
 const VOWELS = new Set(['A','E','I','O','U']), VOWEL_COST = 250, MAX_TRIES = 30;
-
-let wof = {
-  puzzle: null, guessed: new Set(), revealed: new Set(), roundScore: 0, totalScore: 0, 
-  triesLeft: MAX_TRIES, spinValue: 0, canGuess: false, spinning: false, wheelAngle: 0, 
-  animId: null, pool: [], gameActive: false
-};
-
+let wof = { puzzle: null, guessed: new Set(), revealed: new Set(), roundScore: 0, totalScore: 0, triesLeft: MAX_TRIES, spinValue: 0, canGuess: false, spinning: false, wheelAngle: 0, animId: null, pool: [], gameActive: false };
 function buildWofPool() { wof.pool = [...wofPuzzles].sort(() => Math.random() - 0.5); }
-function loadWofPuzzle() { 
-  if (!wof.gameActive) return;
-  wof.guessed.clear(); wof.revealed.clear(); wof.roundScore = 0; wof.triesLeft = MAX_TRIES; 
-  wof.spinValue = 0; wof.canGuess = false; wof.spinning = false;
-  if (wof.animId) cancelAnimationFrame(wof.animId);
-  wof.animId = null;
-  if (!wof.pool.length) buildWofPool();
-  wof.puzzle = wof.pool.pop();
-  document.getElementById('wof-category').textContent = wof.puzzle.category;
-  renderWofBoard();
-  buildWofKeyboard();
-  updateWofUI();
-  startWofTimer();
-  wofStatus('👆 Tap the wheel to spin!', '');
-  drawWheel();
-}
-function startWofGame() { 
-  document.getElementById('wof-overlay').style.display = 'none';
-  wof.totalScore = 0; wof.gameActive = true;
-  const best = localStorage.getItem('wof_best') || '0';
-  document.getElementById('wof-best').textContent = '$' + best;
-  buildWofPool();
-  loadWofPuzzle();
-}
-function startNewWofPuzzle() { if (wof.gameActive) { loadWofPuzzle(); } }
-function renderWofBoard() { 
-  const board = document.getElementById('wof-puzzle-board');
-  if (!board || !wof.puzzle) return;
-  board.innerHTML = '';
-  const words = wof.puzzle.answer.split(' ');
-  words.forEach(word => {
-    const row = document.createElement('div');
-    row.className = 'puzzle-row';
-    [...word].forEach(char => {
-      const tile = document.createElement('div');
-      if (char === ' ') {
-        tile.className = 'letter-tile space';
-        tile.textContent = '';
-      } else if (wof.revealed.has(char)) {
-        tile.className = 'letter-tile revealed';
-        tile.textContent = char;
-      } else {
-        tile.className = 'letter-tile hidden';
-        tile.textContent = '?';
-      }
-      row.appendChild(tile);
-    });
-    board.appendChild(row);
-  });
-}
-function buildWofKeyboard() {
-  const kb = document.getElementById('wof-keyboard');
-  if (!kb) return;
-  kb.innerHTML = '';
-  const rows = [['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['Z','X','C','V','B','N','M']];
-  rows.forEach(row => {
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'kbd-row';
-    row.forEach(letter => {
-      const btn = document.createElement('div');
-      const isVowel = VOWELS.has(letter);
-      btn.className = 'kbd-key' + (isVowel ? ' vowel-key' : '');
-      btn.textContent = letter;
-      btn.setAttribute('data-letter', letter);
-      btn.onclick = (e) => { e.stopPropagation(); onKeyPress(letter); };
-      rowDiv.appendChild(btn);
-    });
-    kb.appendChild(rowDiv);
-  });
-  updateKeyboardState();
-}
-function updateKeyboardState() {
-  document.querySelectorAll('.kbd-key[data-letter]').forEach(key => {
-    const letter = key.getAttribute('data-letter');
-    if (wof.guessed.has(letter)) {
-      const inAnswer = wof.puzzle && [...wof.puzzle.answer].includes(letter);
-      key.className = 'kbd-key ' + (inAnswer ? 'used-hit' : 'used-miss');
-      key.style.pointerEvents = 'none';
-    } else {
-      const isVowel = VOWELS.has(letter);
-      key.className = 'kbd-key' + (isVowel ? ' vowel-key' : '');
-      key.style.pointerEvents = '';
-    }
-  });
-}
-function onKeyPress(letter) {
-  if (!wof.gameActive || wof.spinning) {
-    wofStatus('Game not ready or wheel is spinning!', 'error');
-    return;
-  }
-  if (wof.guessed.has(letter)) { 
-    wofStatus(`"${letter}" already used!`, 'error'); 
-    return; 
-  }
-  document.getElementById('wof-letter-input').value = letter;
-  wofGuess();
-}
-function wofGuess() {
-  if (!wof.gameActive) return;
-  const inp = document.getElementById('wof-letter-input');
-  const raw = (inp ? inp.value : '').trim().toUpperCase();
-  if (inp) inp.value = '';
-  if (!raw || !wof.puzzle) return;
-  
-  if (raw.length > 1) { 
-    wofTrySolve(raw); 
-    return; 
-  }
-  
-  const letter = raw[0];
-  if (!/^[A-Z]$/.test(letter)) return;
-  if (wof.guessed.has(letter)) { 
-    wofStatus(`"${letter}" already used!`, 'error'); 
-    return; 
-  }
-  
-  if (VOWELS.has(letter)) wofBuyVowel(letter);
-  else wofConsonant(letter);
-}
-function wofBuyVowel(letter) {
-  if (wof.roundScore < VOWEL_COST) { 
-    wofStatus(`Need $${VOWEL_COST} to buy vowel "${letter}"`, 'error'); 
-    return; 
-  }
-  wof.roundScore -= VOWEL_COST;
-  wof.guessed.add(letter);
-  const count = [...wof.puzzle.answer].filter(c => c === letter).length;
-  if (count > 0) {
-    wof.revealed.add(letter);
-    updateWofUI(); renderWofBoard(); updateKeyboardState();
-    wofStatus(`✨ "${letter}" found ${count}x! You can spin again!`, 'success');
-    wof.canGuess = false;
-    checkWinCondition();
-  } else {
-    wof.triesLeft--; updateWofUI(); updateKeyboardState();
-    wofStatus(`❌ No "${letter}". ${wof.triesLeft} tries left. Spin again!`, 'error');
-    wof.canGuess = false;
-    if (wof.triesLeft <= 0) wofGameOver();
-  }
-}
-function wofConsonant(letter) {
-  if (!wof.canGuess) { 
-    wofStatus('Spin the wheel first!', 'error'); 
-    return; 
-  }
-  wof.guessed.add(letter);
-  wof.canGuess = false;
-  const count = [...wof.puzzle.answer].filter(c => c === letter).length;
-  if (count > 0) {
-    wof.revealed.add(letter);
-    const earned = count * wof.spinValue;
-    wof.roundScore += earned;
-    updateWofUI(); renderWofBoard(); updateKeyboardState();
-    wofStatus(`🎉 "${letter}" x${count} = +$${earned}! Spin again!`, 'success');
-    checkWinCondition();
-  } else {
-    wof.triesLeft--; updateWofUI(); updateKeyboardState();
-    wofStatus(`❌ No "${letter}". ${wof.triesLeft} tries left. Spin again!`, 'error');
-    if (wof.triesLeft <= 0) wofGameOver();
-  }
-}
-function checkWinCondition() {
-  const allLetters = [...wof.puzzle.answer].filter(c => c !== ' ');
-  const allRevealed = allLetters.every(letter => wof.revealed.has(letter));
-  if (allRevealed) {
-    wofWin();
-  }
-}
-function wofTrySolve(guess) {
-  const normalizedGuess = guess.trim().toUpperCase();
-  const normalizedAnswer = wof.puzzle.answer;
-  if (normalizedGuess === normalizedAnswer) {
-    wofWin();
-  } else {
-    wofStatus(`❌ "${guess}" is not correct! Keep trying!`, 'error');
-    const inp = document.getElementById('wof-letter-input');
-    if (inp) { inp.classList.add('wrong'); setTimeout(() => inp.classList.remove('wrong'), 600); }
-  }
-}
-function wofWin() {
-  if (!wof.gameActive) return;
-  stopWofTimer();
-  wof.canGuess = false;
-  if (wof.animId) cancelAnimationFrame(wof.animId);
-  [...wof.puzzle.answer].forEach(c => { if (c !== ' ') wof.revealed.add(c); });
-  renderWofBoard();
-  wof.roundScore += 1000;
-  wof.totalScore += wof.roundScore;
-  const prev = parseInt(localStorage.getItem('wof_best') || '0');
-  if (wof.totalScore > prev) { localStorage.setItem('wof_best', wof.totalScore); document.getElementById('wof-best').textContent = '$' + wof.totalScore; }
-  updateWofUI();
-  spawnConfetti();
-  document.getElementById('wof-result-icon').textContent = '🏆';
-  document.getElementById('wof-result-title').textContent = 'Puzzle Solved!';
-  document.getElementById('wof-result-sub').innerHTML = `Answer: ${wof.puzzle.answer}<br>Total: $${wof.totalScore}`;
-  document.getElementById('wof-result-toast').classList.add('show');
-  wof.gameActive = false;
-}
-function wofGameOver() {
-  if (!wof.gameActive) return;
-  stopWofTimer();
-  wof.canGuess = false;
-  if (wof.animId) cancelAnimationFrame(wof.animId);
-  [...wof.puzzle.answer].forEach(c => { if (c !== ' ') wof.revealed.add(c); });
-  renderWofBoard();
-  document.getElementById('wof-result-icon').textContent = '💀';
-  document.getElementById('wof-result-title').textContent = 'Out of Tries!';
-  document.getElementById('wof-result-sub').innerHTML = `Answer: ${wof.puzzle.answer}<br>Total: $${wof.totalScore}`;
-  document.getElementById('wof-result-toast').classList.add('show');
-  wof.gameActive = false;
-}
-function closeWofResult() {
-  document.getElementById('wof-result-toast').classList.remove('show');
-  wof.gameActive = true;
-  loadWofPuzzle();
-}
-function wofSpin() {
-  if (!wof.gameActive || wof.spinning || wof.animId) return;
-  if (wof.canGuess) {
-    wofStatus(`You have $${wof.spinValue} to use! Guess a consonant first!`, 'error');
-    return;
-  }
-  if (wof.triesLeft <= 0) { wofStatus('Game over! Press New Game', 'error'); return; }
-  wof.spinning = true;
-  wof.targetAngle = wof.wheelAngle + (5 + Math.random() * 6) * Math.PI * 2 + Math.random() * Math.PI;
-  wofStatus('🎡 Spinning...', '');
-  wofAnimate();
-}
-function wofAnimate() {
-  const diff = wof.targetAngle - wof.wheelAngle;
-  if (Math.abs(diff) <= 0.02) {
-    wof.wheelAngle = wof.targetAngle % (Math.PI * 2);
-    wof.spinning = false;
-    if (wof.animId) cancelAnimationFrame(wof.animId);
-    wof.animId = null;
-    drawWheel();
-    wofLand();
-    return;
-  }
-  wof.wheelAngle += diff * 0.08;
-  drawWheel();
-  wof.animId = requestAnimationFrame(wofAnimate);
-}
-function wofLand() {
-  const norm = ((Math.PI * 1.5 - wof.wheelAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-  const wedge = WHEEL_WEDGES[Math.floor(norm / WEDGE_ANGLE) % NUM_WEDGES];
-  if (wedge.special === 'lose') {
-    wof.canGuess = false; wof.spinValue = 0; wof.roundScore = 0; wof.triesLeft--;
-    updateWofUI();
-    if (wof.triesLeft <= 0) wofGameOver();
-    else wofStatus('💀 LOSE A TURN! Earnings reset. Spin again!', 'error');
-  } else {
-    wof.spinValue = wedge.value;
-    wof.canGuess = true;
-    wofStatus(`✨ ${wedge.label}! Guess a consonant (or buy a vowel with gold keys).`, 'success');
-  }
-}
-function drawWheel() {
-  const canvas = document.getElementById('wof-canvas');
-  if (!canvas || !canvas.width) return;
-  const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2, cy = canvas.height / 2, r = Math.min(cx, cy) - 5;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  WHEEL_WEDGES.forEach((w, i) => {
-    const a0 = wof.wheelAngle + i * WEDGE_ANGLE, a1 = a0 + WEDGE_ANGLE;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, a0, a1); ctx.closePath();
-    ctx.fillStyle = w.color; ctx.fill();
-    ctx.save(); ctx.translate(cx, cy); ctx.rotate(a0 + WEDGE_ANGLE / 2);
-    ctx.textAlign = 'right'; ctx.font = `bold ${Math.max(9, canvas.width * 0.045)}px "Space Mono",monospace`;
-    ctx.fillStyle = 'white'; ctx.fillText(w.label, r - 5, 8);
-    ctx.restore();
-  });
-  ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fillStyle = '#ffd700'; ctx.fill();
-  ctx.fillStyle = '#000'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🦢', cx, cy);
-}
-let wofTimerInterval = null;
-let wofTimerSeconds = 0;
-function startWofTimer() {
-  stopWofTimer(); wofTimerSeconds = 0; _timerTick();
-  wofTimerInterval = setInterval(_timerTick, 1000);
-}
-function stopWofTimer() {
-  if (wofTimerInterval) { clearInterval(wofTimerInterval); wofTimerInterval = null; }
-}
-function _timerTick() {
-  const el = document.getElementById('wof-timer');
-  if (!el) return;
-  const m = Math.floor(wofTimerSeconds / 60), s = wofTimerSeconds % 60;
-  el.textContent = m > 0 ? m + 'm' + s + 's' : wofTimerSeconds + 's';
-  el.style.color = wofTimerSeconds > 120 ? '#ff6b6b' : wofTimerSeconds > 60 ? '#ffd700' : '#20c997';
-  wofTimerSeconds++;
-}
-function updateWofUI() {
-  const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
-  safe('wof-round-score', el => { el.textContent = '$' + wof.roundScore; });
-  safe('wof-total-score', el => { el.textContent = '$' + wof.totalScore; });
-  safe('wof-tries', el => {
-    el.textContent = wof.triesLeft;
-    el.style.color = wof.triesLeft <= 5 ? '#ff6b6b' : wof.triesLeft <= 10 ? '#ffd700' : '#20c997';
-  });
-  safe('wof-spin-val', el => {
-    if (wof.spinValue > 0 && wof.canGuess) {
-      el.textContent = '+$' + wof.spinValue; el.style.color = '#ffd700';
-    } else {
-      el.textContent = '--'; el.style.color = 'rgba(255,255,255,0.4)';
-    }
-  });
-  safe('wof-vowel-bar', el => {
-    if (wof.roundScore >= 250) {
-      el.textContent = '✅ You can buy a vowel! ($250) — tap a gold key';
-      el.style.color = '#2ecc71'; el.style.background = 'rgba(46,204,113,0.2)';
-    } else {
-      el.textContent = '💰 Need $' + (250 - wof.roundScore) + ' more to buy a vowel';
-      el.style.color = 'rgba(255,255,255,0.55)'; el.style.background = 'rgba(0,0,0,0.3)';
-    }
-  });
-}
+function loadWofPuzzle() { if (!wof.gameActive) return; wof.guessed.clear(); wof.revealed.clear(); wof.roundScore = 0; wof.triesLeft = MAX_TRIES; wof.spinValue = 0; wof.canGuess = false; if (wof.animId) cancelAnimationFrame(wof.animId); if (!wof.pool.length) buildWofPool(); wof.puzzle = wof.pool.pop(); document.getElementById('wof-category').textContent = wof.puzzle.category; renderWofBoard(); buildWofKeyboard(); updateWofUI(); startWofTimer(); wofStatus('👆 Tap the wheel to spin!', ''); drawWheel(); }
+function startWofGame() { document.getElementById('wof-overlay').style.display = 'none'; wof.totalScore = 0; wof.gameActive = true; const best = localStorage.getItem('wof_best') || '0'; document.getElementById('wof-best').textContent = '$' + best; buildWofPool(); loadWofPuzzle(); }
+function renderWofBoard() { const board = document.getElementById('wof-puzzle-board'); if (!board || !wof.puzzle) return; board.innerHTML = ''; const words = wof.puzzle.answer.split(' '); words.forEach(word => { const row = document.createElement('div'); row.className = 'puzzle-row'; [...word].forEach(char => { const tile = document.createElement('div'); if (char === ' ') { tile.className = 'letter-tile space'; tile.textContent = ''; } else if (wof.revealed.has(char)) { tile.className = 'letter-tile revealed'; tile.textContent = char; } else { tile.className = 'letter-tile hidden'; tile.textContent = '?'; } row.appendChild(tile); }); board.appendChild(row); }); }
+function buildWofKeyboard() { const kb = document.getElementById('wof-keyboard'); if (!kb) return; kb.innerHTML = ''; const rows = [['Q','W','E','R','T','Y','U','I','O','P'], ['A','S','D','F','G','H','J','K','L'], ['Z','X','C','V','B','N','M']]; rows.forEach(row => { const rowDiv = document.createElement('div'); rowDiv.className = 'kbd-row'; row.forEach(letter => { const btn = document.createElement('div'); const isVowel = VOWELS.has(letter); btn.className = 'kbd-key' + (isVowel ? ' vowel-key' : ''); btn.textContent = letter; btn.setAttribute('data-letter', letter); btn.onclick = (e) => { e.stopPropagation(); onKeyPress(letter); }; rowDiv.appendChild(btn); }); kb.appendChild(rowDiv); }); updateKeyboardState(); }
+function updateKeyboardState() { document.querySelectorAll('.kbd-key[data-letter]').forEach(key => { const letter = key.getAttribute('data-letter'); if (wof.guessed.has(letter)) { const inAnswer = wof.puzzle && [...wof.puzzle.answer].includes(letter); key.className = 'kbd-key ' + (inAnswer ? 'used-hit' : 'used-miss'); key.style.pointerEvents = 'none'; } else { const isVowel = VOWELS.has(letter); key.className = 'kbd-key' + (isVowel ? ' vowel-key' : ''); key.style.pointerEvents = ''; } }); }
+function onKeyPress(letter) { if (!wof.gameActive || wof.spinning) { wofStatus('Game not ready!', 'error'); return; } if (wof.guessed.has(letter)) { wofStatus(`"${letter}" used!`, 'error'); return; } document.getElementById('wof-letter-input').value = letter; wofGuess(); }
+function wofGuess() { if (!wof.gameActive) return; const inp = document.getElementById('wof-letter-input'); const raw = (inp ? inp.value : '').trim().toUpperCase(); if (inp) inp.value = ''; if (!raw || !wof.puzzle) return; if (raw.length > 1) { wofTrySolve(raw); return; } const letter = raw[0]; if (!/^[A-Z]$/.test(letter)) return; if (wof.guessed.has(letter)) { wofStatus(`"${letter}" already used!`, 'error'); return; } if (VOWELS.has(letter)) wofBuyVowel(letter); else wofConsonant(letter); }
+function wofBuyVowel(letter) { if (wof.roundScore < VOWEL_COST) { wofStatus(`Need $${VOWEL_COST} to buy vowel`, 'error'); return; } wof.roundScore -= VOWEL_COST; wof.guessed.add(letter); const count = [...wof.puzzle.answer].filter(c => c === letter).length; if (count > 0) { wof.revealed.add(letter); updateWofUI(); renderWofBoard(); updateKeyboardState(); wofStatus(`✨ "${letter}" found! Spin again!`, 'success'); wof.canGuess = false; checkWinCondition(); } else { wof.triesLeft--; updateWofUI(); updateKeyboardState(); wofStatus(`❌ No "${letter}". ${wof.triesLeft} tries left.`, 'error'); wof.canGuess = false; if (wof.triesLeft <= 0) wofGameOver(); } }
+function wofConsonant(letter) { if (!wof.canGuess) { wofStatus('Spin the wheel first!', 'error'); return; } wof.guessed.add(letter); wof.canGuess = false; const count = [...wof.puzzle.answer].filter(c => c === letter).length; if (count > 0) { wof.revealed.add(letter); const earned = count * wof.spinValue; wof.roundScore += earned; updateWofUI(); renderWofBoard(); updateKeyboardState(); wofStatus(`🎉 "${letter}" +$${earned}!`, 'success'); checkWinCondition(); } else { wof.triesLeft--; updateWofUI(); updateKeyboardState(); wofStatus(`❌ No "${letter}". ${wof.triesLeft} tries left.`, 'error'); if (wof.triesLeft <= 0) wofGameOver(); } }
+function checkWinCondition() { const allLetters = [...wof.puzzle.answer].filter(c => c !== ' '); const allRevealed = allLetters.every(letter => wof.revealed.has(letter)); if (allRevealed) wofWin(); }
+function wofTrySolve(guess) { if (guess.trim().toUpperCase() === wof.puzzle.answer) { wofWin(); } else { wofStatus(`❌ "${guess}" incorrect!`, 'error'); } }
+function wofWin() { stopWofTimer(); if (wof.animId) cancelAnimationFrame(wof.animId); [...wof.puzzle.answer].forEach(c => { if (c !== ' ') wof.revealed.add(c); }); renderWofBoard(); wof.roundScore += 1000; wof.totalScore += wof.roundScore; const prev = parseInt(localStorage.getItem('wof_best') || '0'); if (wof.totalScore > prev) { localStorage.setItem('wof_best', wof.totalScore); document.getElementById('wof-best').textContent = '$' + wof.totalScore; } updateWofUI(); spawnConfetti(); document.getElementById('wof-result-icon').textContent = '🏆'; document.getElementById('wof-result-title').textContent = 'Puzzle Solved!'; document.getElementById('wof-result-sub').innerHTML = `Answer: ${wof.puzzle.answer}<br>Total: $${wof.totalScore}`; document.getElementById('wof-result-toast').classList.add('show'); wof.gameActive = false; }
+function wofGameOver() { stopWofTimer(); if (wof.animId) cancelAnimationFrame(wof.animId); [...wof.puzzle.answer].forEach(c => { if (c !== ' ') wof.revealed.add(c); }); renderWofBoard(); document.getElementById('wof-result-icon').textContent = '💀'; document.getElementById('wof-result-title').textContent = 'Out of Tries!'; document.getElementById('wof-result-sub').innerHTML = `Answer: ${wof.puzzle.answer}<br>Total: $${wof.totalScore}`; document.getElementById('wof-result-toast').classList.add('show'); wof.gameActive = false; }
+function closeWofResult() { document.getElementById('wof-result-toast').classList.remove('show'); wof.gameActive = true; loadWofPuzzle(); }
+function wofSpin() { if (!wof.gameActive || wof.spinning || wof.animId) return; if (wof.canGuess) { wofStatus(`You have $${wof.spinValue} — guess a consonant!`, 'error'); return; } if (wof.triesLeft <= 0) { wofStatus('Game over! New Game', 'error'); return; } wof.spinning = true; wof.targetAngle = wof.wheelAngle + (5 + Math.random() * 6) * Math.PI * 2 + Math.random() * Math.PI; wofAnimate(); }
+function wofAnimate() { const diff = wof.targetAngle - wof.wheelAngle; if (Math.abs(diff) <= 0.02) { wof.wheelAngle = wof.targetAngle % (Math.PI * 2); wof.spinning = false; if (wof.animId) cancelAnimationFrame(wof.animId); wof.animId = null; drawWheel(); wofLand(); return; } wof.wheelAngle += diff * 0.08; drawWheel(); wof.animId = requestAnimationFrame(wofAnimate); }
+function wofLand() { const norm = ((Math.PI * 1.5 - wof.wheelAngle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2); const wedge = WHEEL_WEDGES[Math.floor(norm / WEDGE_ANGLE) % NUM_WEDGES]; if (wedge.special === 'lose') { wof.canGuess = false; wof.spinValue = 0; wof.roundScore = 0; wof.triesLeft--; updateWofUI(); if (wof.triesLeft <= 0) wofGameOver(); else wofStatus('💀 LOSE A TURN!', 'error'); } else { wof.spinValue = wedge.value; wof.canGuess = true; wofStatus(`✨ ${wedge.label}! Guess a consonant.`, 'success'); } }
+function drawWheel() { const canvas = document.getElementById('wof-canvas'); if (!canvas || !canvas.width) return; const ctx = canvas.getContext('2d'); const cx = canvas.width / 2, cy = canvas.height / 2, r = Math.min(cx, cy) - 5; ctx.clearRect(0, 0, canvas.width, canvas.height); WHEEL_WEDGES.forEach((w, i) => { const a0 = wof.wheelAngle + i * WEDGE_ANGLE, a1 = a0 + WEDGE_ANGLE; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, r, a0, a1); ctx.closePath(); ctx.fillStyle = w.color; ctx.fill(); ctx.save(); ctx.translate(cx, cy); ctx.rotate(a0 + WEDGE_ANGLE / 2); ctx.textAlign = 'right'; ctx.font = `bold ${Math.max(9, canvas.width * 0.045)}px "Space Mono",monospace`; ctx.fillStyle = 'white'; ctx.fillText(w.label, r - 5, 8); ctx.restore(); }); ctx.beginPath(); ctx.arc(cx, cy, 12, 0, Math.PI * 2); ctx.fillStyle = '#ffd700'; ctx.fill(); ctx.fillStyle = '#000'; ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🦢', cx, cy); }
+let wofTimerInterval = null, wofTimerSeconds = 0;
+function startWofTimer() { stopWofTimer(); wofTimerSeconds = 0; _timerTick(); wofTimerInterval = setInterval(_timerTick, 1000); }
+function stopWofTimer() { if (wofTimerInterval) { clearInterval(wofTimerInterval); wofTimerInterval = null; } }
+function _timerTick() { const el = document.getElementById('wof-timer'); if (el) { const m = Math.floor(wofTimerSeconds / 60), s = wofTimerSeconds % 60; el.textContent = m > 0 ? m + 'm' + s + 's' : wofTimerSeconds + 's'; wofTimerSeconds++; } }
+function updateWofUI() { const safe = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); }; safe('wof-round-score', el => el.textContent = '$' + wof.roundScore); safe('wof-total-score', el => el.textContent = '$' + wof.totalScore); safe('wof-tries', el => { el.textContent = wof.triesLeft; }); safe('wof-spin-val', el => { if (wof.spinValue > 0 && wof.canGuess) { el.textContent = '+$' + wof.spinValue; el.style.color = '#ffd700'; } else { el.textContent = '--'; el.style.color = 'rgba(255,255,255,0.4)'; } }); safe('wof-vowel-bar', el => { if (wof.roundScore >= 250) { el.textContent = '✅ Vowel available! ($250) — tap gold key'; el.style.color = '#2ecc71'; } else { el.textContent = '💰 Need $' + (250 - wof.roundScore) + ' to buy vowel'; } }); }
 function wofStatus(msg, type) { const el = document.getElementById('wof-status'); if (el) { el.textContent = msg; el.className = 'wof-status' + (type ? ' ' + type : ''); } }
-function showWofHelp() { alert("🎡 WHEEL OF FORTUNE\n\n1. Tap the WHEEL to spin\n2. Guess consonants to earn $\n3. Vowels cost $250 (gold keys)\n4. WRONG guess = letter DISABLED + -1 try\n5. After buying a vowel, you can SPIN AGAIN!\n6. SOLVE by typing full phrase!\n7. Letters not in puzzle become disabled after guessing!"); }
-function initWofCanvas() {
-  const canvas = document.getElementById('wof-canvas');
-  if (!canvas) return;
-  const size = Math.min(window.innerWidth * 0.32, 150);
-  canvas.width = size; canvas.height = size;
-  canvas.style.width = size + 'px'; canvas.style.height = size + 'px';
-  canvas.onclick = (e) => { e.stopPropagation(); wofSpin(); };
-  drawWheel();
-}
-function setupWofEventListeners() {
-  document.getElementById('wofGuessBtn').onclick = () => wofGuess();
-  document.getElementById('wofSolveBtn').onclick = () => { 
-    const inp = document.getElementById('wof-letter-input'); 
-    const val = inp.value; 
-    wofTrySolve(val); 
-    inp.value = ''; 
-  };
-  document.getElementById('wofNewBtn').onclick = () => startNewWofPuzzle();
-  document.getElementById('startGameBtn').onclick = () => startWofGame();
-  document.getElementById('closeResultBtn').onclick = () => closeWofResult();
-  document.getElementById('wof-letter-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') wofGuess(); });
-}
-initMemoryGame();
-loadBestScores();
-setupWofEventListeners();
+function showWofHelp() { alert("🎡 WHEEL OF FORTUNE\n\nTap wheel to spin\nGuess consonants → earn $\nVowels cost $250 (gold keys)\nWrong guess = letter disabled, -1 try\nSolve for +$1000!"); }
+function initWofCanvas() { const canvas = document.getElementById('wof-canvas'); if (!canvas) return; const size = Math.min(window.innerWidth * 0.32, 150); canvas.width = size; canvas.height = size; canvas.style.width = size + 'px'; canvas.style.height = size + 'px'; canvas.onclick = (e) => { e.stopPropagation(); wofSpin(); }; drawWheel(); }
+function setupWofEventListeners() { document.getElementById('wofGuessBtn').onclick = () => wofGuess(); document.getElementById('wofSolveBtn').onclick = () => { const inp = document.getElementById('wof-letter-input'); const val = inp.value; wofTrySolve(val); inp.value = ''; }; document.getElementById('wofNewBtn').onclick = () => startNewWofPuzzle(); document.getElementById('startGameBtn').onclick = () => startWofGame(); document.getElementById('closeResultBtn').onclick = () => closeWofResult(); document.getElementById('wof-letter-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') wofGuess(); }); }
+function startNewWofPuzzle() { if (wof.gameActive) { loadWofPuzzle(); } }
+initMemoryGame(); loadBestScores(); setupWofEventListeners();
 const wofObserver = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { initWofCanvas(); wofObserver.disconnect(); } }); }, { threshold: 0.2 });
 wofObserver.observe(document.getElementById('wof-screen'));
 setTimeout(initWofCanvas, 500);
 function scrollToGame(idx) { document.getElementById('game-wrapper').scrollTo({ top: idx * window.innerHeight, behavior: 'smooth' }); }
+
+// ==================== TRANSLATE FEATURE (opens deluxe-translate) ====================
+const translateBtn = document.getElementById('globalTranslateBtn');
+const langBadge = document.getElementById('langBadge');
+let currentLang = 'EN';
+
+function openTranslateApp() {
+  // Open the deluxe translate link in a new tab (preserves game in background)
+  window.open('https://deluxe-translate.netlify.app/', '_blank');
+  // optional visual feedback
+  translateBtn.style.transform = 'scale(0.95)';
+  setTimeout(() => { translateBtn.style.transform = ''; }, 150);
+}
+
+translateBtn.addEventListener('click', openTranslateApp);
+// subtle hover animation
+translateBtn.addEventListener('mouseenter', () => { langBadge.textContent = '🌐'; });
+translateBtn.addEventListener('mouseleave', () => { langBadge.textContent = 'EN'; });
+
+// additional tooltip hint
+translateBtn.title = "Open Deluxe Translator (new tab) to translate game text";
 </script>
 </body>
 </html>
